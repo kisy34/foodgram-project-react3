@@ -13,14 +13,14 @@ from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
-from .serializers import (UsersPostsSerializer, CustomUsersSerializer,
-                          FollowsSerializer, FollowersSerializer,
-                          IngredientsSerializer, PasswordSerializer,
-                          NewRecipesSerializer, RecipeSerializer,
-                          TagsSerializer)
-from ..food_recipies.models import (ShoppingList, Favorites, Ingredients,
+from .serializers import (CustomUsersSerializer, FollowersSerializer,
+                          FollowsSerializer, IngredientsSerializer,
+                          NewRecipesSerializer, PasswordSerializer,
+                          RecipeSerializer, TagsSerializer,
+                          UsersPostsSerializer)
+from ..food_recipies.models import (Favorites, Ingredients,
                                     QuantityOfIngredients, Recipies,
-                                    Tags)
+                                    ShoppingList, Tags)
 from ..users.models import Follower
 
 User = get_user_model()
@@ -37,7 +37,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return UsersPostsSerializer
 
     @action(
-            detail=False, methods=['GET'], permission_classes=[IsAuthenticated]
+        detail=False, methods=['GET'], permission_classes=[IsAuthenticated]
     )
     def me(self, request):
         user = get_object_or_404(User, pk=request.user.id)
@@ -56,9 +56,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class FollowView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = FollowsSerializer
     pagination_class = CustomPagination
-    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         user = self.request.user
@@ -74,7 +74,7 @@ class FollowToView(views.APIView):
         user = self.request.user
         data = {'author': author.id, 'user': user.id}
         serializer = FollowersSerializer(
-                data=data, context={'request': request}
+            data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -84,7 +84,7 @@ class FollowToView(views.APIView):
         author = get_object_or_404(User, pk=pk)
         user = self.request.user
         following = get_object_or_404(
-                Follower, user=user, author=author
+            Follower, user=user, author=author
         )
         following.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -101,9 +101,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
         search_param = 'name'
 
     queryset = Ingredients.objects.all()
+    search_fields = ('^name',)
     serializer_class = IngredientsSerializer
     filter_backends = [CustomSearchFilter]
-    search_fields = ('^name',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -123,9 +123,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=user)
 
     @action(
-            detail=True,
-            methods=('POST', 'DELETE'),
-            permission_classes=(IsAuthenticated,)
+        detail=True,
+        methods=('POST', 'DELETE'),
+        permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
         if request.method == 'POST':
@@ -133,9 +133,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return self.delete_recipe(Favorites, request, pk)
 
     @action(
-            detail=True,
-            methods=('POST', 'DELETE'),
-            permission_classes=(IsAuthenticated,)
+        detail=True,
+        methods=('POST', 'DELETE'),
+        permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
@@ -145,21 +145,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
         ingredients = QuantityOfIngredients.objects.filter(
-                recipe__carts__user=request.user
+            recipe__carts__user=request.user
         ).values(
-                'ingredient__name', 'ingredient__measurement_unit'
+            'ingredient__name', 'ingredient__measurement_unit'
         ).order_by(
-                'ingredient__name'
+            'ingredient__name'
         ).annotate(ingredient_amount=Sum('amount'))
         return getpdf(ingredients)
 
     def add_recipe(self, model, pk):
-        recipe = get_object_or_404(Recipies, pk=pk)
+        recipie = get_object_or_404(Recipies, pk=pk)
         user = self.request.user
-        if model.objects.filter(recipe=recipe, user=user).exists():
+        if model.objects.filter(recipe=recipie, user=user).exists():
             raise ValidationError('Error')
-        model.objects.create(recipe=recipe, user=user)
-        serializer = RecipeSerializer(recipe)
+        model.objects.create(recipe=recipie, user=user)
+        serializer = RecipeSerializer(recipie)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def delete_recipe(self, model, pk):

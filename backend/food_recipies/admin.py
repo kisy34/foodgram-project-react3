@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import ShoppingList, Favorites, Ingredients, \
-    QuantityOfIngredients, Recipies, Tags
+from .models import (Favorites, Ingredients, QuantityOfIngredients, Recipies,
+                     ShoppingList, Tags)
 
 
 class IngredientsInLine(admin.TabularInline):
