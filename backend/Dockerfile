@@ -2,9 +2,6 @@ FROM python:3.9
 
 WORKDIR /app
 
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONDONTWRITEBYTECODE 1
-
 RUN pip install gunicorn==20.1.0
 
 COPY requirements.txt .
