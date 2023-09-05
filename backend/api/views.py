@@ -1,6 +1,6 @@
 from core.filters import RecipeFilter
 from core.pagination import CustomPagination
-from core.pdf_download import getpdf
+from core.pdf import getpdf
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
@@ -12,16 +12,16 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
-from ..food_recipies.models import (Favorites, Ingredients,
-                                    QuantityOfIngredients, Recipies,
-                                    ShoppingList, Tags)
-from ..users.models import Follower
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (CustomUsersSerializer, FollowersSerializer,
                           FollowsSerializer, IngredientsSerializer,
                           NewRecipesSerializer, PasswordSerializer,
                           RecipeSerializer, TagsSerializer,
                           UsersPostsSerializer)
+from ..food_recipies.models import (Favorites, Ingredients,
+                                    QuantityOfIngredients, Recipies,
+                                    ShoppingList, Tags)
+from ..users.models import Follower
 
 User = get_user_model()
 
