@@ -5,6 +5,9 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from food_recipies.models import (Favorites, Ingredients,
+                                  QuantityOfIngredients, Recipies,
+                                  ShoppingList, Tags)
 from rest_framework import filters, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
@@ -12,9 +15,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
-from ..food_recipies.models import (Favorites, Ingredients,
-                                    QuantityOfIngredients, Recipies,
-                                    ShoppingList, Tags)
 from ..users.models import Follower
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (CustomUsersSerializer, FollowersSerializer,
