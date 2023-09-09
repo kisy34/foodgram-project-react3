@@ -12,27 +12,27 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
-from ..food_recipies.models import (Favorites, Ingredients,
-                                    QuantityOfIngredients, Recipies,
-                                    ShoppingList, Tags)
-from ..users.models import Follower
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (CustomUsersSerializer, FollowersSerializer,
                           FollowsSerializer, IngredientsSerializer,
                           NewRecipesSerializer, PasswordSerializer,
                           RecipeSerializer, TagsSerializer,
                           UsersPostsSerializer)
+from ..food_recipies.models import (Favorites, Ingredients,
+                                    QuantityOfIngredients, Recipies,
+                                    ShoppingList, Tags)
+from ..users.models import Follower
 
 User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = (AllowAny,)
+    permission_classes = [AllowAny]
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ['list', 'retrieve']:
             return CustomUsersSerializer
         return UsersPostsSerializer
 
@@ -56,7 +56,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class FollowView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
     serializer_class = FollowsSerializer
     pagination_class = CustomPagination
 
@@ -67,7 +67,7 @@ class FollowView(ListAPIView):
 
 class FollowToView(views.APIView):
     pagination_class = CustomPagination
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         author = get_object_or_404(User, pk=pk)
@@ -93,7 +93,7 @@ class FollowToView(views.APIView):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = [IsAdminOrReadOnly]
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -108,13 +108,13 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipies.objects.all()
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = [IsOwnerOrReadOnly]
     pagination_class = CustomPagination
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ['list', 'retrieve']:
             return RecipeSerializer
         return NewRecipesSerializer
 
@@ -124,8 +124,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=('POST', 'DELETE'),
-        permission_classes=(IsAuthenticated,)
+        methods=['POST', 'DELETE'],
+        permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk=None):
         if request.method == 'POST':
@@ -134,8 +134,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=('POST', 'DELETE'),
-        permission_classes=(IsAuthenticated,)
+        methods=['POST', 'DELETE'],
+        permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
@@ -167,4 +167,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = self.request.user
         obj = get_object_or_404(model, recipe=recipe, user=user)
         obj.delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
